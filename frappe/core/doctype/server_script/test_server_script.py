@@ -72,16 +72,6 @@ frappe.method_that_doesnt_exist("do some magic")
 		script = '''
 frappe.db.commit()
 '''
-	),
-	dict(
-		name='test_cache_methods',
-		script_type = 'DocType Event',
-		doctype_event = 'Before Save',
-		reference_doctype = 'ToDo',
-		disabled = 1,
-		script = '''
-frappe.cache().set_value('test_key', doc.name)
-'''
 	)
 ]
 class TestServerScript(unittest.TestCase):
@@ -152,13 +142,41 @@ class TestServerScript(unittest.TestCase):
 		server_script.disabled = 1
 		server_script.save()
 
-	def test_cache_methods_in_server_script(self):
-		server_script = frappe.get_doc('Server Script', 'test_cache_methods')
-		server_script.disabled = 0
-		server_script.save()
+	def test_restricted_qb(self):
+		todo = frappe.get_doc(doctype="ToDo", description="QbScriptTestNote")
+		todo.insert()
 
-		todo = frappe.get_doc(dict(doctype='ToDo', description='test me')).insert()
-		self.assertEqual(todo.name, frappe.cache().get_value('test_key'))
+		script = frappe.get_doc(
+			doctype='Server Script',
+			name='test_qb_restrictions',
+			script_type = 'API',
+			api_method = 'test_qb_restrictions',
+			allow_guest = 1,
+			# whitelisted update
+			script = f'''
+frappe.db.set_value("ToDo", "{todo.name}", "description", "safe")
+'''
+		)
+		script.insert()
+		script.execute_method()
 
-		server_script.disabled = 1
-		server_script.save()
+		todo.reload()
+		self.assertEqual(todo.description, "safe")
+
+		# unsafe update
+		script.script = f"""
+todo = frappe.qb.DocType("ToDo")
+frappe.qb.update(todo).set(todo.description, "unsafe").where(todo.name == "{todo.name}").run()
+"""
+		script.save()
+		self.assertRaises(frappe.PermissionError, script.execute_method)
+		todo.reload()
+		self.assertEqual(todo.description, "safe")
+
+		# safe select
+		script.script = f"""
+todo = frappe.qb.DocType("ToDo")
+frappe.qb.from_(todo).select(todo.name).where(todo.name == "{todo.name}").run()
+"""
+		script.save()
+		script.execute_method()
