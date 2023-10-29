@@ -278,7 +278,7 @@ def set_insert(update, producer_site, event_producer):
 
 	if update.use_same_name:
 		doc.insert(set_name=update.docname, set_child_names=False)
-		if doc.doctype in ["POS Invoice","Cash Return Entry"]:
+		if doc.doctype in ["POS Invoice","POS Cash Return Entry"]:
 			doc.submit()
 	else:
 		# if event consumer is not saving documents with the same name as the producer
