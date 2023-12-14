@@ -60,10 +60,13 @@ class EventConsumer(Document):
 		consumer_site.update(event_producer)
 
 	def get_consumer_status(self):
-		response = requests.get(self.callback_url)
-		if response.status_code != 200:
+		try:
+			response = requests.get(self.callback_url)
+			if response.status_code != 200:
+				return 'offline'
+			return 'online'
+		except Exception:
 			return 'offline'
-		return 'online'
 
 @frappe.whitelist()
 def register_consumer(data):
