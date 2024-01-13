@@ -266,7 +266,10 @@ def set_insert(update, producer_site, event_producer):
 	if frappe.db.get_value(update.ref_doctype, update.docname):
 		# doc already created
 		return
-	doc = frappe.get_doc(update.data)
+	if isinstance(update.data, str):
+		doc=frappe.get_doc(json.loads(update.data))
+	else:
+		doc = frappe.get_doc(update.data)
 
 	if update.mapping:
 		if update.get('dependencies'):
