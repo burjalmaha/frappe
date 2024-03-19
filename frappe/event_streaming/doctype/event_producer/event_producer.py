@@ -271,13 +271,13 @@ def set_insert(update, producer_site, event_producer):
 	else:
 		doc = frappe.get_doc(update.data)
 
-	if update.mapping:
-		if update.get('dependencies'):
-			dependencies_created = sync_mapped_dependencies(update.dependencies, producer_site)
-			for fieldname, value in iteritems(dependencies_created):
-				doc.update({ fieldname : value })
-	else:
-		sync_dependencies(doc, producer_site)
+	# if update.mapping:
+	# 	if update.get('dependencies'):
+	# 		dependencies_created = sync_mapped_dependencies(update.dependencies, producer_site)
+	# 		for fieldname, value in iteritems(dependencies_created):
+	# 			doc.update({ fieldname : value })
+	# else:
+	# 	sync_dependencies(doc, producer_site)
 
 	if update.use_same_name:
 		doc.insert(set_name=update.docname, set_child_names=False)
@@ -305,13 +305,13 @@ def set_update(update, producer_site):
 		if data.added:
 			local_doc = update_row_added(local_doc, data.added)
 
-		if update.mapping:
-			if update.get('dependencies'):
-				dependencies_created = sync_mapped_dependencies(update.dependencies, producer_site)
-				for fieldname, value in iteritems(dependencies_created):
-					local_doc.update({ fieldname : value })
-		else:
-			sync_dependencies(local_doc, producer_site)
+		# if update.mapping:
+		# 	if update.get('dependencies'):
+		# 		dependencies_created = sync_mapped_dependencies(update.dependencies, producer_site)
+		# 		for fieldname, value in iteritems(dependencies_created):
+		# 			local_doc.update({ fieldname : value })
+		# else:
+		# 	sync_dependencies(local_doc, producer_site)
 
 		local_doc.save()
 		local_doc.db_update_all()
