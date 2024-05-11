@@ -324,8 +324,9 @@ def update_row_removed(local_doc, removed):
 		for row in rownames:
 			table_rows = local_doc.get(tablename)
 			child_table_row = get_child_table_row(table_rows, row)
-			table_rows.remove(child_table_row)
-			local_doc.set(tablename, table_rows)
+			if child_table_row:
+				table_rows.remove(child_table_row)
+				local_doc.set(tablename, table_rows)
 	return local_doc
 
 
