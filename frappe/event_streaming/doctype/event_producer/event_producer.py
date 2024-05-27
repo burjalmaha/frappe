@@ -522,6 +522,13 @@ def new_event_notification(producer_url):
 	"""Pull data from producer when notified"""
 	enqueued_method = 'frappe.event_streaming.doctype.event_producer.event_producer.pull_from_node'
 	jobs = get_jobs()
+	doc=frappe.get_doc("Sync Settings")
+	test={}
+	test["jobs"]=frappe.as_json(jobs)
+	test["producer_url"]=producer_url
+	test["frappe_local_site"]=frappe.local.site
+	doc.db_set('description', str(test))
+	
 	if not jobs or producer_url not in jobs[frappe.local.site]:
 		frappe.enqueue(enqueued_method,job_name=producer_url,queue='long', **{'event_producer': producer_url})
 
