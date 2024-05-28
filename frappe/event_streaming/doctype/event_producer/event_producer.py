@@ -521,7 +521,7 @@ def get_mapped_update(update, producer_site):
 def new_event_notification(producer_url):
 	"""Pull data from producer when notified"""
 	enqueued_method = 'frappe.event_streaming.doctype.event_producer.event_producer.pull_from_node'
-	jobs = get_jobs()
+	jobs = get_jobs(key='job_name',site=frappe.local.site)
 	if not jobs or producer_url not in jobs[frappe.local.site]:
 		frappe.enqueue(enqueued_method,job_name=producer_url,queue='long', **{'event_producer': producer_url})
 
