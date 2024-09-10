@@ -718,6 +718,9 @@ frappe.ui.Page = Class.extend({
 		this.custom_actions.removeClass('hide');
 
 		return button;
+		// Add actions as menu item in Mobile View (similar to "add_custom_button" in forms.js)
+		let menu_item = this.add_menu_item(label, click, false);
+		menu_item.parent().addClass("hidden-xl");
 	},
 
 	add_custom_button_group: function(label, icon, parent) {
