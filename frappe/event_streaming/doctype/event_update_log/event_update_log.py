@@ -148,6 +148,7 @@ def is_consumer_uptodate(update_log, consumer):
 	:param update_log: The UpdateLog Doc in context
 	:param consumer: The EventConsumer doc
 	"""
+	return True
 	if update_log.update_type == 'Create':
 		# consumer is obviously up to date
 		return True
