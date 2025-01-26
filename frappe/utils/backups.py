@@ -504,7 +504,7 @@ def scheduled_backup(
 	backup_path_conf=None,
 	ignore_conf=False,
 	include_doctypes="",
-	exclude_doctypes="",
+	exclude_doctypes="Version",
 	compress=False,
 	force=False,
 	verbose=False,
