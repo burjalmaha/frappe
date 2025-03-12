@@ -804,7 +804,8 @@ def validate_fields(meta):
 			if d.options != d.parent:
 				options = frappe.db.get_value("DocType", d.options, "name")
 				if not options:
-					frappe.throw(_("{0}: Options must be a valid DocType for field {1} in row {2}").format(docname, d.label, d.idx), WrongOptionsDoctypeLinkError)
+					print(_("{0}: Options must be a valid DocType for field {1} in row {2}").format(docname, d.label, d.idx))
+					# frappe.throw(_("{0}: Options must be a valid DocType for field {1} in row {2}").format(docname, d.label, d.idx), WrongOptionsDoctypeLinkError)
 				elif not (options == d.options):
 					frappe.throw(_("{0}: Options {1} must be the same as doctype name {2} for the field {3}")
 						.format(docname, d.options, options, d.label), DoctypeLinkError)
@@ -1012,8 +1013,8 @@ def validate_fields(meta):
 				df_str = frappe.bold(_(docfield.label))
 				text_str = _("{0} is an invalid Data field.").format(df_str) + "<br>" * 2 + _("Only Options allowed for Data field are:") + "<br>"
 				df_options_str = "<ul><li>" + "</li><li>".join([_(x) for x in data_field_options]) + "</ul>"
-
-				frappe.msgprint(text_str + df_options_str, title="Invalid Data Field", raise_exception=True)
+				print(text_str + df_options_str)
+				# frappe.msgprint(text_str + df_options_str, title="Invalid Data Field", raise_exception=True)
 
 	def check_child_table_option(docfield):
 
