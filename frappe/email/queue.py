@@ -438,12 +438,15 @@ def send_one(email, smtpserver=None, auto_commit=True, now=False):
 				continue
 
 			message = prepare_message(email, recipient.recipient, recipients_list)
-			if not frappe.flags.in_test:
-				smtpserver.sess.sendmail(email.sender, recipient.recipient, message)
+			try:
+				if not frappe.flags.in_test:
+					smtpserver.sess.sendmail(email.sender, recipient.recipient, message)
 
-			recipient.status = "Sent"
-			frappe.db.sql("""update `tabEmail Queue Recipient` set status='Sent', modified=%s where name=%s""",
-				(now_datetime(), recipient.name), auto_commit=auto_commit)
+				recipient.status = "Sent"
+				frappe.db.sql("""update `tabEmail Queue Recipient` set status='Sent', modified=%s where name=%s""",
+					(now_datetime(), recipient.name), auto_commit=auto_commit)
+			except:
+				pass
 
 		email_sent_to_any_recipient = any("Sent" == s.status for s in recipients_list)
 
