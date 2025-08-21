@@ -242,23 +242,23 @@ def sync(update, producer_site, event_producer, in_retry=False):
 	try:
 		if update.update_type == 'Create':
 			set_insert(update, producer_site, event_producer.name)
-		if update.update_type == 'Update':
+		elif update.update_type == 'Update':
 			set_update(update, producer_site)
-		if update.update_type == 'Delete':
+		elif update.update_type == 'Delete':
 			set_delete(update)
-		if in_retry:
-			return 'Synced'
 		log_event_sync(update, event_producer.name, 'Synced')
+		event_producer.set_last_update(update.creation)
+		frappe.db.commit()
+		return 'Synced'
 
 	except Exception:
+		frappe.db.rollback()
 		if in_retry:
 			if frappe.flags.in_test:
 				print(frappe.get_traceback())
 			return 'Failed'
 		log_event_sync(update, event_producer.name, 'Failed', frappe.get_traceback())
-
-	event_producer.set_last_update(update.creation)
-	frappe.db.commit()
+		return 'Failed'
 
 
 def set_insert(update, producer_site, event_producer):
