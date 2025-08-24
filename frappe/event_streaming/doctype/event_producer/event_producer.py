@@ -252,11 +252,12 @@ def sync(update, producer_site, event_producer, in_retry=False):
 		return 'Synced'
 
 	except Exception:
-		frappe.db.rollback()
 		if in_retry:
 			if frappe.flags.in_test:
 				print(frappe.get_traceback())
 			return 'Failed'
+		else:
+			frappe.db.rollback()
 		log_event_sync(update, event_producer.name, 'Failed', frappe.get_traceback())
 		return 'Failed'
 
