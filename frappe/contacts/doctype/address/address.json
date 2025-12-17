@@ -148,7 +148,7 @@
  "icon": "fa fa-map-marker",
  "idx": 5,
  "links": [],
- "modified": "2020-10-21 16:14:37.284830",
+ "modified": "2023-11-28 01:50:02.636100",
  "modified_by": "Administrator",
  "module": "Contacts",
  "name": "Address",
@@ -206,6 +206,18 @@
    "report": 1,
    "role": "System Manager",
    "set_user_permissions": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Customer",
    "share": 1,
    "write": 1
   }
