@@ -285,7 +285,8 @@ def set_insert(update, producer_site, event_producer):
 		if doc.doctype in ["POS Invoice","POS Cash Return Entry"]:
 			doc.submit()
 			if doc.docstatus == 0:
-				frappe.throw("No Items in the Invoice")
+				frappe.log_error(f"Not submitted: {doc.name}")
+				frappe.throw("Not submitted")
 				
 	else:
 		# if event consumer is not saving documents with the same name as the producer
