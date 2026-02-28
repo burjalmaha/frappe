@@ -246,7 +246,7 @@ def sync(update, producer_site, event_producer, in_retry=False):
 			set_update(update, producer_site)
 		elif update.update_type == 'Delete':
 			set_delete(update)
-		log_event_sync(update, event_producer.name, 'Synced')
+		# log_event_sync(update, event_producer.name, 'Synced')
 		event_producer.set_last_update(update.creation)
 		frappe.db.commit()
 		return 'Synced'
