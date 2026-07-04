@@ -537,13 +537,17 @@ def console(context):
 @click.option('--profile', is_flag=True, default=False)
 @click.option('--coverage', is_flag=True, default=False)
 @click.option('--skip-test-records', is_flag=True, default=False, help="Don't create test records")
-@click.option('--skip-before-tests', is_flag=True, default=False, help="Don't run before tests hook")
+@click.option(
+	'--skip-before-tests/--run-before-tests',
+	default=True,
+	help="Skip before tests hook (default: skip)",
+)
 @click.option('--junit-xml-output', help="Destination file path for junit xml report")
 @click.option('--failfast', is_flag=True, default=False, help="Stop the test run on the first error or failure")
 @pass_context
 def run_tests(context, app=None, module=None, doctype=None, test=(), profile=False,
 		coverage=False, junit_xml_output=False, ui_tests = False, doctype_list_path=None,
-		skip_test_records=False, skip_before_tests=False, failfast=False):
+		skip_test_records=False, skip_before_tests=True, failfast=False):
 
 	"Run tests"
 	import frappe.test_runner
@@ -552,14 +556,21 @@ def run_tests(context, app=None, module=None, doctype=None, test=(), profile=Fal
 	site = get_site(context)
 
 	allow_tests = frappe.get_conf(site).allow_tests
+	is_ci = bool(os.environ.get('CI'))
 
-	if not (allow_tests or os.environ.get('CI')):
+	if not (allow_tests or is_ci):
 		click.secho('Testing is disabled for the site!', bold=True)
 		click.secho('You can enable tests by entering following command:')
 		click.secho('bench --site {0} set-config allow_tests true'.format(site), fg='green')
 		return
 
 	frappe.init(site=site)
+
+	# Safety guard: avoid running tests against live/non-developer sites.
+	if not is_ci and not cint(frappe.local.conf.get('developer_mode')):
+		click.secho('Running tests is blocked on non-developer sites.', fg='red', bold=True)
+		click.secho('Use a dedicated developer/test site or run tests in CI.', fg='yellow')
+		return
 
 	frappe.flags.skip_before_tests = skip_before_tests
 	frappe.flags.skip_test_records = skip_test_records
