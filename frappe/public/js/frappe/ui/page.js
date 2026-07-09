@@ -156,12 +156,46 @@ frappe.ui.Page = Class.extend({
 			.add(action_btn, action_btn.find('.actions-btn-group-label'));
 	},
 
+	get_sidebar_storage_key() {
+		return this.wrapper.attr('data-page-route') || frappe.get_route_str();
+	},
+
+	get_collapsed_sidebars() {
+		try {
+			return JSON.parse(localStorage.getItem('frappe.collapsed_sidebars')) || {};
+		} catch (e) {
+			return {};
+		}
+	},
+
+	is_sidebar_collapsed() {
+		return !!this.get_collapsed_sidebars()[this.get_sidebar_storage_key()];
+	},
+
+	set_sidebar_collapsed(collapsed) {
+		let collapsed_sidebars = this.get_collapsed_sidebars();
+		let key = this.get_sidebar_storage_key();
+		if (collapsed) {
+			collapsed_sidebars[key] = 1;
+		} else {
+			delete collapsed_sidebars[key];
+		}
+		localStorage.setItem('frappe.collapsed_sidebars', JSON.stringify(collapsed_sidebars));
+	},
+
 	setup_sidebar_toggle() {
-		let sidebar_toggle = $('.page-head').find('.sidebar-toggle-btn');
+		let sidebar_toggle = this.wrapper.find('.page-head .sidebar-toggle-btn');
 		let sidebar_wrapper = this.wrapper.find('.layout-side-section');
 		if (this.disable_sidebar_toggle || !sidebar_wrapper.length) {
 			sidebar_toggle.remove();
 		} else {
+			// only hide, never show: .show() would write an inline display
+			// that overrides the media query hiding the sidebar on mobile
+			if (this.is_sidebar_collapsed()) {
+				sidebar_wrapper.hide();
+			}
+			this.update_sidebar_icon();
+
 			sidebar_toggle.attr("title", __("Toggle Sidebar")).tooltip({
 				delay: { "show": 600, "hide": 100 },
 				trigger: "hover",
@@ -171,6 +205,7 @@ frappe.ui.Page = Class.extend({
 					this.setup_overlay_sidebar();
 				} else {
 					sidebar_wrapper.toggle();
+					this.set_sidebar_collapsed(sidebar_wrapper.is(':hidden'));
 				}
 				$(document.body).trigger('toggleSidebar');
 				this.update_sidebar_icon();
@@ -199,10 +234,11 @@ frappe.ui.Page = Class.extend({
 	},
 
 	update_sidebar_icon() {
-		let sidebar_toggle = $('.page-head').find('.sidebar-toggle-btn');
+		let sidebar_toggle = this.wrapper.find('.page-head .sidebar-toggle-btn');
 		let sidebar_toggle_icon = sidebar_toggle.find('.sidebar-toggle-icon');
 		let sidebar_wrapper = this.wrapper.find('.layout-side-section');
-		let is_sidebar_visible = $(sidebar_wrapper).is(":visible");
+		// not :visible -- the page container is still hidden while it is being constructed
+		let is_sidebar_visible = sidebar_wrapper.css("display") !== "none";
 		sidebar_toggle_icon.html(frappe.utils.icon(is_sidebar_visible ? 'sidebar-collapse' : 'sidebar-expand', 'md'));
 	},
 
