@@ -5,6 +5,7 @@ frappe.standard_pages['Workspaces'] = function() {
 		parent: wrapper,
 		name: 'Workspaces',
 		title: __("Workspace"),
+		disable_sidebar_toggle: true,
 	});
 
 	frappe.workspace = new frappe.views.Workspace(wrapper);
@@ -18,6 +19,7 @@ frappe.views.Workspace = class Workspace {
 		this.wrapper = $(wrapper);
 		this.page = wrapper.page;
 		this.prepare_container();
+		this.reset_sidebar_visibility();
 		this.show_or_hide_sidebar();
 		this.setup_dropdown();
 		this.pages = {};
@@ -204,9 +206,18 @@ frappe.views.Workspace = class Workspace {
 		$(document.body).trigger("toggleDeskSidebar");
 	}
 
+	reset_sidebar_visibility() {
+		// the header toggle no longer exists here, so anyone who hid the sidebar
+		// with it gets the sidebar back once. the flag keeps a later
+		// Menu > Toggle Sidebar from being undone on the next reload.
+		if (localStorage["frappe.workspace_sidebar_reset"]) return;
+		localStorage["frappe.workspace_sidebar_reset"] = "1";
+		localStorage.show_workspace_sidebar = "true";
+	}
+
 	show_or_hide_sidebar() {
 		let show_workspace_sidebar = JSON.parse(localStorage.show_workspace_sidebar || "true");
-		$('#page-workspace .layout-side-section').toggleClass('hidden', !show_workspace_sidebar);
+		this.wrapper.find('.layout-side-section').toggleClass('hidden', !show_workspace_sidebar);
 	}
 };
 
